@@ -29,7 +29,7 @@ class cell
 		bool	marked;
 	public:
 		cell(int nb) : nb(nb), marked(false) { }
-		~cell() { delete (this); }
+		~cell() { }
 
 		bool	getMarked()		{ return(marked); }
 		int		getNb()			{ return(nb); }
@@ -42,21 +42,23 @@ private:
 	size_t	height;
 	size_t	column;
 
-	std::vector<std::vector<cell *> > map;
+	std::vector<std::vector<cell> > map;
 public:
 	grid() : height(0), column(0), map(1) {}
 
-	~grid() {}
-
-	void addNb(int nb) { map[height].push_back(new cell(nb)); }
-	void newLine() { map.resize(map.size() + 1); height++; }
-	void displayLine(std::vector<cell *> ln)
+	~grid()
 	{
-		std::vector<cell *>::iterator beg = ln.begin();
+	}
+
+	void addNb(int nb) { map[height].push_back(cell(nb)); }
+	void newLine() { map.resize(map.size() + 1); height++; }
+	void displayLine(std::vector<cell> ln)
+	{
+		std::vector<cell>::iterator beg = ln.begin();
 		while (beg != ln.end())
 		{
-			(*beg)->getMarked() ? std::cout << BOLDGREEN : std::cout << BOLDRED;
-			std::cout << (*beg)->getNb() << RESET << " ";
+			(*beg).getMarked() ? std::cout << BOLDGREEN : std::cout << BOLDRED;
+			std::cout << (*beg).getNb() << RESET << " ";
 			beg++;
 		}
 		std::cout << "\n";
@@ -82,34 +84,32 @@ public:
 			size_t j = 0;
 			while (j < map[i].size())
 			{
-				if (map[i][j]->getNb() == nb)
-					map[i][j]->markedCell();
+				if (map[i][j].getNb() == nb)
+					map[i][j].markedCell();
 				j++;
 			}
 			i++;
 		}
 	}
-
-	bool checkLine(std::vector<cell *> ln)
+	bool checkLine(std::vector<cell> ln)
 	{
-		std::vector<cell *>::iterator beg = ln.begin();
+		std::vector<cell>::iterator beg = ln.begin();
 		int len = 0;
 
 		while (beg != ln.end())
 		{
-			if ((*beg)->getMarked())
+			if ((*beg).getMarked())
 				len++;
 			beg++;
 		}
 		return (len == ln.size());
 	}
-
-	bool checkCol(std::vector<std::vector<cell *> > gr)
+	bool checkCol(std::vector<std::vector<cell> > gr)
 	{
 		size_t i = 0, j = 0;
 		while (j < map[i].size())
 		{
-			while (i < height && map[i][j]->getMarked())
+			while (i < height && map[i][j].getMarked())
 				i++;
 			if (i == height)
 				return (true);
@@ -118,7 +118,6 @@ public:
 		}
 		return (false);
 	}
-
 	bool checkWin()
 	{
 		size_t i = 0;
@@ -130,7 +129,6 @@ public:
 		}
 		return (checkCol(map) ? true : false);
 	}
-
 	int answer(int nb)
 	{
 		int unmarked = 0;
@@ -140,8 +138,8 @@ public:
 		{
 			while (j < map[i].size())
 			{
-				if (map[i][j]->getMarked())
-					unmarked += map[i][j]->getNb();
+				if (!map[i][j].getMarked())
+					unmarked += map[i][j].getNb();
 				j++;
 			}
 			j = 0;
@@ -154,9 +152,7 @@ public:
 std::string cleanStr(std::string str)
 {
 	std::string::iterator it = str.begin();
-	for (; (*it) == ' ' && it != str.end(); it++)
-	{
-	}
+	for (; (*it) == ' ' && it != str.end(); it++);
 	if (it == str.begin())
 		return (str);
 	str.erase(str.begin(), it);
@@ -215,7 +211,7 @@ bool checkWin(int nb, std::vector<grid> *vecGr)
 		if ((*beg).checkWin())
 		{
 			(*beg).displayGrid();
-			std::cout << "Answer : " << (*beg).answer(nb) << std::endl;
+			std::cout << "Answer(nb * unmarked) : " << (*beg).answer(nb) << std::endl;
 			return (true);
 		}
 		beg++;
@@ -250,7 +246,8 @@ int main(void)
 	winNb = extractNb(inputTab[0], ',');
 	grid gr;
 	std::vector<grid> vecGr;
-	for (std::vector<std::string>::iterator it = inputTab.begin() + 1; it != inputTab.end(); it++)
+	std::vector<std::string>::iterator it = inputTab.begin() + 1;
+	for (; it != inputTab.end(); it++)
 	{
 		*it = cleanStr(*it);
 		std::list<int> tmp = extractNb(*it, ' ');
@@ -265,11 +262,17 @@ int main(void)
 			gr.clean();
 		}
 	}
+	std::list<int> tmp = extractNb(*it, ' ');
+	if (tmp.size() > 1)
+	{
+		addNb(tmp, &gr);
+		gr.newLine();
+	}
+	else
+	{
+		vecGr.push_back(gr);
+		gr.clean();
+	}
 	routine(winNb, &vecGr);
-	// for (std::vector<grid>::iterator it = vecGr.begin(); it != vecGr.end(); it++)
-	// {
-	// 	(*it).displayGrid();
-	// 	std::cout << "##############" << std::endl;
-	// }
 	return (0);
 }
