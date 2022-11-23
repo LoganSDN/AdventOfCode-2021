@@ -33,17 +33,8 @@ size_t compute(std::vector<std::string> *inputTab, bool opt)
 			std::string::iterator it = binTab[i].begin();
 			int x = 0, y = 0;
 			while(it != binTab[i].end())
-			{
-				if ((*it) == '1')
-					x++;
-				else
-					y++;
-				it++;
-			}
-			if (opt)
-				cleanTab(inputTab, i, (y <= x ? '1' : '0'));
-			else
-				cleanTab(inputTab, i, (x >= y ? '0' : '1'));
+				*(it++) == '1' ? x++ : y++;
+			opt ? cleanTab(inputTab, i, (y <= x ? '1' : '0')) : cleanTab(inputTab, i, (x >= y ? '0' : '1'));
 			beg = inputTab->begin();
 			i++;
 			if (i >= len || inputTab->size() == 1)
