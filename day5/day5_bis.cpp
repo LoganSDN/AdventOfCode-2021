@@ -62,6 +62,23 @@ public:
 			while (x1 <= x2)
 				tab[y1][x1++] += 1;
 	}
+	void drawDiag(PAIR_PT pts)
+	{
+		int x1 = pts.first.first, x2 = pts.second.first, y1 = pts.first.second, y2 = pts.second.second;
+		if (x1 < x2 && y1 < y2)
+			while (x1 <= x2 && y1 <= y2)
+				tab[y1++][x1++] += 1;
+		else if (x1 > x2 && y1 < y2)
+			while (x1 >= x2 && y1 <= y2)
+				tab[y1++][x1--] += 1;
+		else if (x1 > x2 && y1 > y2)
+			while (x1 >= x2 && y1 >= y2)
+				tab[y1--][x1--] += 1;
+		else if (x1 < x2 && y1 > y2)
+			while (x1 <= x2 && y1 >= y2)
+				tab[y1--][x1++] += 1;
+
+	}
 	void answer()
 	{
 		size_t i = 0, j = 0, out = 0;
@@ -121,7 +138,7 @@ void draw(PAIR_PT pts, grid *gr)
 {
 	int x1 = pts.first.first, x2 = pts.second.first, y1 = pts.first.second, y2 = pts.second.second;
 	if (x1 != x2 && y1 != y2)
-		return ;
+		gr->drawDiag(pts);	
 	if (x1 == x2)
 		gr->drawVert(pts);
 	else if (y1 == y2)
